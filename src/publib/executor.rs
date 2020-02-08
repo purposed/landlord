@@ -1,22 +1,21 @@
 use crate::{BuildMode, Builder, Project, ProjectStack};
 
+use crate::lease::BuildConfig;
 use rood::cli::OutputManager;
-use rood::CausedResult;
+use rood::{Cause, CausedResult};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 type IBuilder = Box<dyn Builder>;
 
 pub struct Executor {
     builders: HashMap<ProjectStack, IBuilder>,
-
-    output: OutputManager,
 }
 
 impl Executor {
     pub fn new() -> Executor {
         Executor {
             builders: HashMap::new(),
-            output: OutputManager::new(true), // TODO: Parametrize
         }
     }
 
@@ -24,26 +23,31 @@ impl Executor {
         self.builders.insert(stack, b);
     }
 
-    pub fn build(&self, project: &Project, mode: BuildMode) -> CausedResult<()> {
+    pub fn build(
+        &self,
+        project: &Project,
+        mode: BuildMode,
+        output: &OutputManager,
+    ) -> CausedResult<()> {
         let builder = self.builders.get(&project.lease.stack).unwrap();
-        self.output
-            .step(&format!("Building project [{}]", project.lease.name), 0);
+        output.step(&format!("Building project [{}]", project.lease.name));
 
         for config in project.lease.builds.iter() {
-            self.output.step(
-                &format!("Building {}-{}...", config.platform, config.architecture),
-                1,
-            );
+            let stack_output = output.push();
+
+            stack_output.step(&format!(
+                "Building {}-{}...",
+                config.platform, config.architecture
+            ));
             let build_path = builder.build(&project.path, config, &mode)?;
-            self.output.debug(
-                &format!("Build can be found in {}", build_path.to_str().unwrap()),
-                2,
-            );
-            self.output.step("OK", 1);
+            stack_output.push().debug(&format!(
+                "Build can be found in {}",
+                build_path.to_str().unwrap()
+            ));
+            stack_output.step("OK");
         }
 
-        self.output
-            .success(&format!("Build of [{}] complete", project.lease.name), 0);
+        output.success(&format!("Build of [{}] complete", project.lease.name));
 
         Ok(())
     }

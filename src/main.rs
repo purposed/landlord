@@ -6,7 +6,6 @@ use clap::{App, AppSettings, Arg, SubCommand};
 mod cli;
 
 use publib;
-use publib::BuildMode;
 use rood::cli::OutputManager;
 
 fn main() {
@@ -35,20 +34,18 @@ fn main() {
                     Arg::with_name("debug")
                         .long("debug")
                         .help("Build in debug mode")
-                        .conflicts_with("release")
-                        .takes_value(true),
+                        .conflicts_with("release"),
                 )
                 .arg(
                     Arg::with_name("release")
                         .long("release")
                         .help("Build in release mode")
-                        .conflicts_with("debug")
-                        .takes_value(true),
+                        .conflicts_with("debug"),
                 ),
         );
 
     match cli::run_main(app.get_matches()) {
         Ok(_) => {}
-        Err(e) => OutputManager::new(false).error(&format!("{}", e), 0),
+        Err(e) => OutputManager::new(false).error(&format!("{}", e)),
     }
 }

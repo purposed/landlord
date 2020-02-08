@@ -45,11 +45,12 @@ impl Builder for RustBuilder {
             }
         }
 
-        let actual_cmd = cmd_base
-            .stdout(Stdio::piped())
+        let mut actual_cmd = cmd_base
             //.stderr(Stdio::piped())
+            //.stdout(Stdio::piped())
             .spawn()?;
 
+        /*
         let stdout = actual_cmd.stdout.ok_or_else(|| {
             Error::new(
                 Cause::GeneralError("SubprocessError".to_string()),
@@ -57,13 +58,11 @@ impl Builder for RustBuilder {
             )
         })?;
 
-        /*
-        TODO: Properly attach stderr.
-        let stderr = actual_cmd.stdout.ok_or_else(Error::new(
+        //TODO: Properly attach stderr.
+        let stderr = actual_cmd.stderr.ok_or_else(|| Error::new(
             Cause::GeneralError("SubprocessError".to_string()),
             "Could not attach to stderr",
         ))?;
-        */
 
         let reader = BufReader::new(stdout);
         reader
@@ -71,7 +70,20 @@ impl Builder for RustBuilder {
             .filter_map(|line| line.ok())
             .for_each(|line| self.output.progress(&line, 3));
 
-        Ok(path.join("target").join(&out_dir))
+        let errreader = BufReader::new(stderr);
+        errreader
+            .lines()
+            .filter_map(|line| line.ok())
+            .for_each(|line| self.output.error(&line, 3));
+        */
+        let status = actual_cmd.wait()?;
+        if status.success() {
+            Ok(path.join("target").join(&out_dir))
+        } else {
+            let code = status.code().unwrap_or(1);
+            Err(Error::new(Cause::GeneralError("SubprocessError".to_string()), &format!("Status: {}", code)))
+        }
+
     }
 
     fn clean(&self) -> CausedResult<()> {
