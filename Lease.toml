@@ -1,0 +1,10 @@
+name = "landlord"
+version = "0.1.0"
+stack = "rust"
+
+[[build]]
+architecture = "amd64"
+platform = "linux"
+
+[artifacts]
+landlord = {platforms = ["linux"], path = "$(BUILD)/landlord", include_checksum = false}
