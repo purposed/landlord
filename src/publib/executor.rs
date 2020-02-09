@@ -1,13 +1,12 @@
 use crate::{BuildMode, Builder, Project, ProjectStack};
 
-use crate::lease::BuildConfig;
 use rood::cli::OutputManager;
-use rood::{Cause, CausedResult};
+use rood::CausedResult;
 use std::collections::HashMap;
-use std::path::PathBuf;
 
 type IBuilder = Box<dyn Builder>;
 
+#[derive(Default)]
 pub struct Executor {
     builders: HashMap<ProjectStack, IBuilder>,
 }

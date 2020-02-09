@@ -1,11 +1,7 @@
-use std::env;
-use std::io;
-
 use clap::{App, AppSettings, Arg, SubCommand};
 
 mod cli;
 
-use publib;
 use rood::cli::OutputManager;
 
 fn main() {

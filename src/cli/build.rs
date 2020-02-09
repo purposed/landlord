@@ -1,9 +1,8 @@
 use clap::ArgMatches;
 
 use rood::cli::OutputManager;
-use rood::{Cause, CausedResult, Error};
+use rood::CausedResult;
 
-use publib;
 use publib::BuildMode;
 
 fn get_build_mode(matches: &ArgMatches) -> BuildMode {

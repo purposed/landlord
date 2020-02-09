@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use rood::sys::{file, Architecture, Platform};
 use rood::{Cause, CausedResult, Error};
@@ -9,10 +9,7 @@ use semver::Version;
 
 use serde::Deserialize;
 
-use toml;
-
-use crate::{Project, ProjectStack};
-use std::hash::Hash;
+use crate::ProjectStack;
 
 fn default_checksum() -> bool {
     false

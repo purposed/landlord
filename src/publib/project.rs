@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use rood::sys::file;
-use rood::{Cause, CausedResult, Error};
+use rood::CausedResult;
 
 use crate::{constants, Lease};
 

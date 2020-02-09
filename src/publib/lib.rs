@@ -1,14 +1,16 @@
-mod builder;
 mod constants;
 mod executor;
+mod interface;
 mod lease;
+mod mode;
 mod project;
 mod stack;
 pub mod stacks;
 
-pub use builder::{BuildMode, Builder};
 pub use executor::Executor;
-pub use lease::Lease;
+pub use interface::{Builder, Validator};
+pub use lease::{BuildConfig, Lease};
+pub use mode::BuildMode;
 pub use project::Project;
 pub use stack::ProjectStack;
 

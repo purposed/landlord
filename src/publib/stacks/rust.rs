@@ -1,26 +1,16 @@
-use std::collections::HashMap;
-use std::env;
-use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
-use rood::cli::OutputManager;
 use rood::{Cause, CausedResult, Error};
 
-use crate::builder::{BuildMode, Builder};
-use crate::lease::BuildConfig;
-use crate::Project;
+use crate::{BuildConfig, BuildMode, Builder, Validator};
 
-pub struct RustBuilder {
-    output: OutputManager,
-}
+#[derive(Default)]
+pub struct RustBuilder {}
 
 impl RustBuilder {
     pub fn new() -> RustBuilder {
-        RustBuilder {
-            // TODO: Take output manager as param.
-            output: OutputManager::new(true),
-        }
+        RustBuilder {}
     }
 }
 
@@ -28,7 +18,7 @@ impl Builder for RustBuilder {
     fn build(
         &self,
         path: &PathBuf,
-        config: &BuildConfig,
+        _config: &BuildConfig,
         mode: &BuildMode,
     ) -> CausedResult<PathBuf> {
         let mut cmd = Command::new("cargo");
@@ -81,12 +71,20 @@ impl Builder for RustBuilder {
             Ok(path.join("target").join(&out_dir))
         } else {
             let code = status.code().unwrap_or(1);
-            Err(Error::new(Cause::GeneralError("SubprocessError".to_string()), &format!("Status: {}", code)))
+            Err(Error::new(
+                Cause::GeneralError("SubprocessError".to_string()),
+                &format!("Status: {}", code),
+            ))
         }
-
     }
 
     fn clean(&self) -> CausedResult<()> {
-        Ok(())
+        unimplemented!();
+    }
+}
+
+impl Validator for RustBuilder {
+    fn validate(&self, project_path: &PathBuf) -> CausedResult<()> {
+        unimplemented!();
     }
 }
