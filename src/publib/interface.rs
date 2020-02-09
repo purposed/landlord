@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use rood::CausedResult;
 
-use crate::lease::BuildConfig;
+use crate::lease::{BuildConfig, Validation};
 use crate::BuildMode;
 
 // Builder defines a backend for building specific stacks.
@@ -17,5 +17,5 @@ pub trait Builder {
 }
 
 pub trait Validator {
-    fn validate(&self, project_path: &PathBuf) -> CausedResult<()>;
+    fn get_default_validations(&self) -> Vec<Validation>;
 }

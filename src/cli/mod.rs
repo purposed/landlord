@@ -1,5 +1,5 @@
-mod build;
 mod cli_main;
+mod publish;
 
-pub use build::build;
 pub use cli_main::run_main;
+pub use publish::publish;

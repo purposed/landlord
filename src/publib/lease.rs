@@ -21,6 +21,12 @@ pub struct BuildConfig {
     pub platform: Platform,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct Validation {
+    pub name: String,
+    pub command: Vec<String>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct ArtifactConfig {
     #[serde(default = "default_checksum")]
@@ -38,7 +44,11 @@ pub struct Lease {
 
     #[serde(rename = "build")]
     pub builds: Vec<BuildConfig>,
+
     pub artifacts: HashMap<String, ArtifactConfig>,
+
+    #[serde(rename = "validation")]
+    pub additional_validations: Option<Vec<Validation>>,
 }
 
 impl Lease {

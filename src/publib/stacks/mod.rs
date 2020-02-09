@@ -1,2 +1,1 @@
-mod rust;
-pub use rust::RustBuilder;
+pub mod rust;

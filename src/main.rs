@@ -11,12 +11,12 @@ fn main() {
         .about("Build & Release Facilitator")
         .setting(AppSettings::ArgRequiredElseHelp)
         .subcommand(
-            SubCommand::with_name("build")
-                .about("Builds a project")
+            SubCommand::with_name("publish")
+                .about("Prepares a release from the local machine")
                 .arg(
                     Arg::with_name("project_path")
                         .required(false)
-                        .help("The path of the project to build")
+                        .help("The path of the project to publish")
                         .default_value("."),
                 )
                 .arg(
