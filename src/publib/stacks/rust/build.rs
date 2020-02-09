@@ -1,10 +1,9 @@
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
 
-use rood::{Cause, CausedResult, Error};
+use rood::CausedResult;
 
 use crate::subprocess;
-use crate::{BuildConfig, BuildMode, Builder, Validator};
+use crate::{BuildConfig, BuildMode, Builder};
 
 #[derive(Default)]
 pub struct RustBuilder {}

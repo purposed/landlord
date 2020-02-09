@@ -1,6 +1,7 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 
 mod cli;
+mod git;
 
 use rood::cli::OutputManager;
 

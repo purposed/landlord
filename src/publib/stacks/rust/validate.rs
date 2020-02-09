@@ -1,8 +1,7 @@
 use crate::lease::Validation;
 use crate::Validator;
-use rood::CausedResult;
-use std::path::PathBuf;
 
+#[derive(Default)]
 pub struct RustValidator {}
 
 impl RustValidator {

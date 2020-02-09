@@ -6,7 +6,7 @@ mod mode;
 mod project;
 mod stack;
 pub mod stacks;
-mod subprocess;
+pub mod subprocess;
 mod validator;
 
 pub use builder::MetaBuilder;
