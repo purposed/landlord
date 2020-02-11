@@ -1,4 +1,5 @@
 use crate::lease::Validation;
+use crate::stacks::go::GoValidator;
 use crate::stacks::rust::RustValidator;
 use crate::subprocess;
 use crate::{Project, ProjectStack, Validator};
@@ -22,6 +23,7 @@ impl MetaValidator {
     pub fn default() -> MetaValidator {
         let mut hsh: HashMap<ProjectStack, IValidator> = HashMap::new();
         hsh.insert(ProjectStack::Rust, Box::from(RustValidator::new()));
+        hsh.insert(ProjectStack::Go, Box::from(GoValidator::new()));
 
         MetaValidator::new(hsh)
     }

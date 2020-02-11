@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use rood::CausedResult;
 
-use crate::subprocess;
+use crate::{subprocess, Project};
 use crate::{BuildConfig, BuildMode, Builder};
 
 #[derive(Default)]
@@ -17,7 +17,7 @@ impl RustBuilder {
 impl Builder for RustBuilder {
     fn build(
         &self,
-        path: &PathBuf,
+        project: &Project,
         _config: &BuildConfig,
         mode: &BuildMode,
     ) -> CausedResult<PathBuf> {
@@ -35,7 +35,7 @@ impl Builder for RustBuilder {
             }
         }
         subprocess::run_cmd(cmd, |l| eprintln!("{}", l))?;
-        Ok(path.join("target").join(out_dir))
+        Ok(project.path.join("target").join(out_dir))
     }
 
     fn clean(&self) -> CausedResult<()> {

@@ -1,9 +1,9 @@
 use std::io::{BufRead, BufReader};
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, ChildStdout, Command, Stdio};
 
 use rood::{Cause, CausedResult, Error};
 
-pub fn run_cmd<T>(args: Vec<&str>, output_proc: T) -> CausedResult<()>
+pub fn run_cmd<T>(args: Vec<&str>, output_proc: T) -> CausedResult<String>
 where
     T: Fn(&str),
 {
@@ -20,7 +20,13 @@ where
 
     let status = child_process.wait()?;
     if status.success() {
-        Ok(())
+        let stdout = child_process.stdout.ok_or_else(|| {
+            Error::new(
+                Cause::GeneralError("SubprocessError".to_string()),
+                "Could not attach to stdout",
+            )
+        })?;
+        get_stdout(stdout)
     } else {
         let code = status.code().unwrap_or(1);
         get_stderr(child_process, output_proc)?;
@@ -29,6 +35,15 @@ where
             &format!("Status: {}", code),
         ))
     }
+}
+
+fn get_stdout(stdout: ChildStdout) -> CausedResult<String> {
+    let total_vec: Vec<String> = BufReader::new(stdout)
+        .lines()
+        .filter_map(|line| line.ok())
+        .collect();
+
+    Ok(total_vec.join("\n").trim().to_string())
 }
 
 pub fn get_stderr<T>(c: Child, output_proc: T) -> CausedResult<()>

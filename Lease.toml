@@ -6,5 +6,8 @@ stack = "rust"
 architecture = "amd64"
 platform = "linux"
 
-[artifacts]
-landlord = {platforms = ["linux"], path = "$(BUILD)/landlord", include_checksum = false}
+[[artifact]]
+name = "landlord"
+platforms = ["linux"]
+path_template = "$(BUILD)/landlord"
+include_checksum = false
