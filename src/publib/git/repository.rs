@@ -59,6 +59,11 @@ impl Repository {
     pub fn commit_all(&self, message: &str) -> CausedResult<()> {
         let _moved = Dir::move_to(&self.path);
 
+        if !self.has_uncommitted_changes()? {
+            // Shortcut in case no version bump was requested.
+            return Ok(());
+        }
+
         // Stage all changes.
         subprocess::run_cmd(vec!["git", "add", "."], |_l| {})?;
 
