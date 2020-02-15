@@ -1,0 +1,23 @@
+name: Build & Test
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Run build/release
+        run: |
+          cargo build --release
+      #- name: Upload artifact
+      #  uses: actions/upload-artifact@master
+      #  with:
+      #    name: project
+      #    path: bin/debug/project
