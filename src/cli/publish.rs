@@ -63,6 +63,40 @@ fn bump_version(
     bumper.bump_version(project, level, dry, output)
 }
 
+fn trigger_release(project: &Project, dry: bool, output: &OutputManager) -> CausedResult<()> {
+    output.step("[Push]");
+    let pushed = output.push();
+
+    pushed.step("Git Commit");
+    if !dry {
+        project.repository.commit_all(&format!(
+            "Landlord - Bump version to v{}",
+            project.lease.version
+        ))?
+    }
+
+    pushed.step("Git Push");
+    if !dry {
+        project
+            .repository
+            .push("origin", &project.repository.current_branch()?)?;
+    }
+
+    pushed.step(&format!("Git Tag/{}", project.lease.version));
+    let tag_name = format!("{}", project.lease.version);
+    if !dry {
+        project.repository.add_tag(&tag_name)?;
+    }
+
+    pushed.step("Git Push Tag");
+    if !dry {
+        project.repository.push("origin", &tag_name)?;
+    }
+
+    output.step("[Push] - OK");
+    Ok(())
+}
+
 pub fn publish(matches: &ArgMatches) -> CausedResult<()> {
     let verbose = matches.is_present("verbose");
     let output = OutputManager::new(verbose);
@@ -85,6 +119,8 @@ pub fn publish(matches: &ArgMatches) -> CausedResult<()> {
 
     build(matches, &project, &output.push())?;
     validate(&project, &output.push())?;
+
+    trigger_release(&project, dry, &output.push())?;
 
     output.success("[Publish] - OK");
 

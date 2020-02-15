@@ -1,12 +1,14 @@
-use clap::{App, AppSettings, Arg, SubCommand};
-
 mod cli;
+
+use clap::{App, AppSettings, Arg, SubCommand};
 
 use rood::cli::OutputManager;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
     let app = App::new("lord")
-        .version("0.1.0")
+        .version(VERSION)
         .author("Purposed")
         .about("Build & Release Facilitator")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -73,7 +75,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("level")
-                        .possible_values(&["major", "minor", "patch"])
+                        .possible_values(&["major", "minor", "patch", "none"])
                         .help("By how much to increment the version number.")
                         .required(true),
                 ),

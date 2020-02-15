@@ -8,6 +8,6 @@ platform = "linux"
 
 [[artifact]]
 name = "landlord"
-platforms = ["linux"]
 path_template = "$(BUILD)/landlord"
-include_checksum = false
+target_name_template = "landlord"
+include_checksum = true

@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
@@ -37,11 +36,12 @@ pub struct Validation {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ArtifactConfig {
     pub name: String,
+
     #[serde(default = "default_checksum")]
     pub include_checksum: bool,
 
     pub path_template: String,
-    pub platforms: Vec<Platform>,
+    pub target_name_template: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -52,6 +52,7 @@ pub struct Lease {
     pub name: String,
     pub version: Version,
     pub stack: ProjectStack,
+
     #[serde(default = "default_artifact_dir")]
     pub artifact_directory: String,
 

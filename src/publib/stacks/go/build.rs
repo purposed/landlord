@@ -21,13 +21,13 @@ impl GoBuilder {
         file::ensure_exists(&gomod_path)?;
 
         let gomod_raw = fs::read_to_string(&gomod_path)?;
-        let mod_def: Option<&str> = gomod_raw.split("\n").next();
+        let mod_def: Option<&str> = gomod_raw.split('\n').next();
 
         if let Some(mod_name) = mod_def {
             Ok(mod_name
-                .split(" ")
+                .split(' ')
                 .last()
-                .ok_or(Error::new(Cause::InvalidState, "Unexpected go.mod format"))?
+                .ok_or_else(|| Error::new(Cause::InvalidState, "Unexpected go.mod format"))?
                 .to_string())
         } else {
             Err(Error::new(Cause::InvalidState, "Unexpected go.mod format"))

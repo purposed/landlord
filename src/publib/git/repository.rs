@@ -55,4 +55,28 @@ impl Repository {
         let _moved = Dir::move_to(&self.path)?;
         subprocess::run_cmd(vec!["git", "rev-parse", "--abbrev-ref", "HEAD"], |_l| {})
     }
+
+    pub fn commit_all(&self, message: &str) -> CausedResult<()> {
+        let _moved = Dir::move_to(&self.path);
+
+        // Stage all changes.
+        subprocess::run_cmd(vec!["git", "add", "."], |_l| {})?;
+
+        let _output =
+            subprocess::run_cmd(vec!["git", "commit", "-m", message], |l| eprintln!("{}", l))?;
+        Ok(())
+    }
+
+    pub fn push(&self, remote: &str, target: &str) -> CausedResult<()> {
+        let _moved = Dir::move_to(&self.path);
+        let _output =
+            subprocess::run_cmd(vec!["git", "push", remote, target], |l| eprintln!("{}", l))?;
+        Ok(())
+    }
+
+    pub fn add_tag(&self, tag: &str) -> CausedResult<()> {
+        let _moved = Dir::move_to(&self.path);
+        subprocess::run_cmd(vec!["git", "tag", tag], |_l| {})?;
+        Ok(())
+    }
 }

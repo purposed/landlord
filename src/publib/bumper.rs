@@ -50,6 +50,10 @@ impl MetaBumper {
             "major" => new_version.increment_major(),
             "minor" => new_version.increment_minor(),
             "patch" => new_version.increment_patch(),
+            "none" => {
+                pushed.success("No version bump requested");
+                return Ok(());
+            }
             _ => {
                 return Err(Error::new(
                     Cause::InvalidData,
