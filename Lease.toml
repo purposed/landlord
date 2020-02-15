@@ -1,0 +1,13 @@
+name = "landlord"
+version = "0.1.0"
+stack = "rust"
+
+[[build]]
+architecture = "amd64"
+platform = "linux"
+
+[[artifact]]
+name = "landlord"
+path_template = "$(BUILD)/landlord"
+target_name_template = "landlord"
+include_checksum = true
