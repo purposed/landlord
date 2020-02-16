@@ -76,18 +76,18 @@ impl MetaBumper {
             project.lease.save()?;
             pushed.step("Saved new lease version");
 
-            let mut files_to_replace = self.get_default_version_bumps();
-            files_to_replace.append(
-                &mut self
-                    .bumpers
-                    .get(&project.lease.stack)
-                    .unwrap()
-                    .get_files_with_version(),
-            );
+            // Bump stack-specific files.
+            self.bumpers.get(&project.lease.stack).unwrap().bump_all(
+                &project,
+                &current_version,
+                &new_version,
+            )?;
+            pushed.step("Bumped stack-specific files");
 
+            // Bump generic files.
+            let files_to_replace = self.get_default_version_bumps();
             let pattern = format!("{}", current_version);
             let pattern_to = format!("{}", new_version);
-
             for file_name in files_to_replace {
                 let full_path = project.path.join(&file_name);
                 file::replace_all(&full_path, &pattern, &pattern_to)?;

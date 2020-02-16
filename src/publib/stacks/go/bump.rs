@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use rood::CausedResult;
+use semver::Version;
 
-use crate::Bumper;
+use crate::{Bumper, Project};
 
 #[derive(Default)]
 pub struct GoBumper {}
@@ -12,7 +13,7 @@ impl GoBumper {
 }
 
 impl Bumper for GoBumper {
-    fn get_files_with_version(&self) -> Vec<PathBuf> {
-        Vec::new()
+    fn bump_all(&self, _: &Project, _: &Version, _: &Version) -> CausedResult<()> {
+        Ok(())
     }
 }

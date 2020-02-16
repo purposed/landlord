@@ -4,6 +4,7 @@ use rood::CausedResult;
 
 use crate::lease::{BuildConfig, Validation};
 use crate::{BuildMode, Project};
+use semver::Version;
 
 // Builder defines a backend for building specific stacks.
 pub trait Builder {
@@ -21,5 +22,10 @@ pub trait Validator {
 }
 
 pub trait Bumper {
-    fn get_files_with_version(&self) -> Vec<PathBuf>;
+    fn bump_all(
+        &self,
+        project: &Project,
+        old_version: &Version,
+        new_version: &Version,
+    ) -> CausedResult<()>;
 }
