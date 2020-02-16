@@ -74,7 +74,7 @@ fn trigger_release(project: &Project, dry: bool, output: &OutputManager) -> Caus
             .push("origin", &project.repository.current_branch()?)?;
     }
 
-    pushed.step(&format!("Git Tag/{}", project.lease.version));
+    pushed.step(&format!("Git Tag/v{}", project.lease.version));
     let tag_name = format!("v{}", project.lease.version);
     if !dry {
         project.repository.add_tag(&tag_name)?;
