@@ -10,6 +10,7 @@ mod stack;
 pub mod stacks;
 pub mod subprocess;
 mod validator;
+pub mod zip;
 
 pub use builder::MetaBuilder;
 pub use bumper::MetaBumper;

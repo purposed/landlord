@@ -3,12 +3,13 @@ use std::path::{Path, PathBuf};
 
 use clap::ArgMatches;
 
-use publib::{BuildConfig, BuildMode, MetaBuilder, Project};
+use publib::{zip, BuildConfig, BuildMode, MetaBuilder, Project};
 
 use rood::cli::OutputManager;
 use rood::CausedResult;
 
 use sha2::{Digest, Sha256};
+use std::fs::DirEntry;
 use std::io::Write;
 
 fn create_artifact_dir<T>(path: T, output: &OutputManager) -> CausedResult<()>
@@ -106,7 +107,7 @@ fn extract_artifacts(
         fs::copy(&artifact_src_path, artifact_dst_path)?;
     }
 
-    output.step("[Bundle] - OK");
+    output.success("[Bundle] - OK");
     Ok(String::from(artifact_dir.to_str().unwrap()))
 }
 
@@ -119,6 +120,8 @@ pub fn release(matches: &ArgMatches) -> CausedResult<()> {
     let project_path = matches.value_of("project_path").unwrap(); // Mandatory argument.
     let project = publib::Project::new(project_path)?;
 
+    let skip_zip = matches.is_present("nozip");
+
     output.step("[Release]");
 
     // Phase 1 - Ensure artifact dir exists.
@@ -129,8 +132,39 @@ pub fn release(matches: &ArgMatches) -> CausedResult<()> {
     let build_map = metabuilder.build(&project, mode, &output.push())?;
 
     for (dir_path, config) in build_map.iter() {
-        let _artifact_dir = extract_artifacts(dir_path, config, &project, &output.push())?;
-        // TODO: Compress.
+        let artifact_dir = extract_artifacts(dir_path, config, &project, &output.push())?;
+        if skip_zip {
+            continue;
+        }
+
+        let pushed = output.push();
+        pushed.step("[Artifact Compression]");
+
+        // TODO: Move to rood.
+        let _dir = publib::git::dirmove::Dir::move_to(&artifact_dir)?;
+
+        let dir_entries = fs::read_dir(".")?.collect::<std::io::Result<Vec<DirEntry>>>()?;
+
+        let out_zip = Path::new(".").join(&format!(
+            "{}-{}-{}",
+            &config.name.as_ref().unwrap_or(&project.lease.name),
+            &config.platform,
+            &config.architecture
+        ));
+
+        let entry_names: Vec<String> = dir_entries
+            .iter()
+            .map(|f| f.path().to_str().unwrap().to_string())
+            .collect();
+
+        zip::zip_directory(out_zip.to_str().unwrap(), &entry_names)?;
+
+        // After zipping, delete original artifacts.
+        for entry in dir_entries.iter() {
+            fs::remove_file(&entry.path())?;
+        }
+
+        pushed.success("[Artifact Compression] - OK");
     }
 
     output.step("[Release] - OK");

@@ -60,6 +60,12 @@ fn main() {
                         .short("v")
                         .help("Whether to use verbose output")
                         .required(false),
+                )
+                .arg(
+                    Arg::with_name("nozip")
+                        .long("nozip")
+                        .help("Skip compression of the build artifacts.")
+                        .required(false),
                 ),
         )
         .subcommand(
