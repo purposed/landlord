@@ -11,14 +11,6 @@ use rood::CausedResult;
 use sha2::{Digest, Sha256};
 use std::io::Write;
 
-fn get_build_mode(matches: &ArgMatches) -> BuildMode {
-    if matches.is_present("release") || !matches.is_present("debug") {
-        BuildMode::Release
-    } else {
-        BuildMode::Debug
-    }
-}
-
 fn create_artifact_dir<T>(path: T, output: &OutputManager) -> CausedResult<()>
 where
     T: AsRef<Path>,
@@ -122,7 +114,7 @@ pub fn release(matches: &ArgMatches) -> CausedResult<()> {
     let verbose = matches.is_present("verbose");
     let output = OutputManager::new(verbose);
 
-    let mode = get_build_mode(matches);
+    let mode = BuildMode::get(matches);
 
     let project_path = matches.value_of("project_path").unwrap(); // Mandatory argument.
     let project = publib::Project::new(project_path)?;

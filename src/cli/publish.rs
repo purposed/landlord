@@ -5,14 +5,6 @@ use rood::{Cause, CausedResult, Error};
 
 use publib::{BuildMode, MetaBuilder, MetaBumper, MetaValidator, Project};
 
-fn get_build_mode(matches: &ArgMatches) -> BuildMode {
-    if matches.is_present("release") || !matches.is_present("debug") {
-        BuildMode::Release
-    } else {
-        BuildMode::Debug
-    }
-}
-
 fn ensure_ready(project: &Project, output: &OutputManager) -> CausedResult<()> {
     // Step 1 - Ensure git repository in project.
     output.step("[Git State]");
@@ -41,14 +33,14 @@ fn ensure_ready(project: &Project, output: &OutputManager) -> CausedResult<()> {
     Ok(())
 }
 
-fn build(matches: &ArgMatches, project: &Project, output: &OutputManager) -> CausedResult<()> {
+pub fn build(matches: &ArgMatches, project: &Project, output: &OutputManager) -> CausedResult<()> {
     let builder = MetaBuilder::default();
-    builder.build(&project, get_build_mode(matches), &output)?;
+    builder.build(&project, BuildMode::get(matches), &output)?;
 
     Ok(())
 }
 
-fn validate(project: &Project, output: &OutputManager) -> CausedResult<()> {
+pub fn validate(project: &Project, output: &OutputManager) -> CausedResult<()> {
     let validator = MetaValidator::default();
     validator.validate(&project, output)
 }

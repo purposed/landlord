@@ -34,7 +34,7 @@ impl MetaBuilder {
         output: &OutputManager,
     ) -> CausedResult<HashMap<PathBuf, BuildConfig>> {
         let builder = self.builders.get(&project.lease.stack).unwrap();
-        output.step(&format!("[Build] - {}", project.lease.name));
+        output.step(&format!("[Build/{:?}] - {}", mode, project.lease.name));
 
         let mut hsh_map = HashMap::new();
 
