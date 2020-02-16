@@ -13,6 +13,31 @@ fn main() {
         .about("Build & Release Facilitator")
         .setting(AppSettings::ArgRequiredElseHelp)
         .subcommand(
+            SubCommand::with_name("validate")
+                .about("Builds & runs all validators for the current project")
+                .arg(
+                    Arg::with_name("project_path")
+                        .long("path")
+                        .required(false)
+                        .help("The path of the project to validate")
+                        .default_value("."),
+                )
+                .arg(
+                    Arg::with_name("mode")
+                        .long("mode")
+                        .possible_values(&["debug", "release"])
+                        .default_value("release")
+                        .help("Build mode"),
+                )
+                .arg(
+                    Arg::with_name("verbose")
+                        .long("verbose")
+                        .short("v")
+                        .help("Whether to use verbose output")
+                        .required(false),
+                ),
+        )
+        .subcommand(
             SubCommand::with_name("release")
                 .about("Bundles artifacts for release -- Fit for CI use")
                 .arg(
@@ -34,6 +59,12 @@ fn main() {
                         .long("verbose")
                         .short("v")
                         .help("Whether to use verbose output")
+                        .required(false),
+                )
+                .arg(
+                    Arg::with_name("nozip")
+                        .long("nozip")
+                        .help("Skip compression of the build artifacts.")
                         .required(false),
                 ),
         )

@@ -1,9 +1,9 @@
-name: Build & Test
+name: Test
 on: [push]
-jobs:
 
+jobs:
   build:
-    name: Build
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -13,9 +13,14 @@ jobs:
         with:
           toolchain: stable
           override: true
-      - name: Run build/release
+      - name: Bootstrap Landlord
         run: |
           cargo build --release
+          sudo mv ./target/release/landlord /usr/local/bin/landlord
+      - name: Validate
+        run: |
+          landlord validate --mode release
+          landlord validate --mode debug
       #- name: Upload artifact
       #  uses: actions/upload-artifact@master
       #  with:
