@@ -16,7 +16,7 @@ jobs:
       - name: Bootstrap Landlord
         run: |
           cargo build --release
-          mv ./target/release/landlord /usr/local/bin/landlord
+          sudo mv ./target/release/landlord /usr/local/bin/landlord
       - name: Validate
         run: |
           landlord validate --mode release
