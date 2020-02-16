@@ -1,5 +1,5 @@
 name = 'landlord'
-version = '0.1.4'
+version = '0.1.5'
 stack = 'rust'
 artifact_directory = 'artifacts'
 
@@ -11,4 +11,4 @@ platform = 'linux'
 name = 'landlord'
 include_checksum = true
 path_template = '$(BUILD)/landlord'
-target_name_template = 'landlord'
+target_name_template = 'landlord-$(PLATFORM)-$(ARCHITECTURE)'
