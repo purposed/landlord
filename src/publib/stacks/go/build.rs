@@ -1,12 +1,13 @@
 use std::env;
 use std::fs;
+use std::ops::Add;
 use std::path::PathBuf;
 
-use crate::{subprocess, Project};
-use crate::{BuildConfig, BuildMode, Builder};
+use anyhow::{anyhow, Result};
+
 use rood::sys::file;
-use rood::{Cause, CausedResult, Error};
-use std::ops::Add;
+
+use crate::{subprocess, BuildConfig, BuildMode, Builder, Project};
 
 #[derive(Default)]
 pub struct GoBuilder {}
@@ -16,7 +17,7 @@ impl GoBuilder {
         GoBuilder {}
     }
 
-    fn get_module_name(&self, project: &Project) -> CausedResult<String> {
+    fn get_module_name(&self, project: &Project) -> Result<String> {
         let gomod_path = project.path.join("go.mod");
         file::ensure_exists(&gomod_path)?;
 
@@ -27,10 +28,10 @@ impl GoBuilder {
             Ok(mod_name
                 .split(' ')
                 .last()
-                .ok_or_else(|| Error::new(Cause::InvalidState, "Unexpected go.mod format"))?
+                .ok_or_else(|| anyhow!("Unexpected go.mod format"))?
                 .to_string())
         } else {
-            Err(Error::new(Cause::InvalidState, "Unexpected go.mod format"))
+            Err(anyhow!("Unexpected go.mod format"))
         }
     }
 }
@@ -41,16 +42,26 @@ impl Builder for GoBuilder {
         project: &Project,
         config: &BuildConfig,
         _mode: &BuildMode, // TODO: Use.
-    ) -> CausedResult<PathBuf> {
+    ) -> Result<PathBuf> {
+        let architecture = {
+            let archs = config.architecture.value();
+
+            archs
+                .get(0)
+                .ok_or_else(|| anyhow!("Invalid architecture"))?
+                .clone()
+        };
+
         let path = project.path.clone();
         env::set_var("GOOS", config.platform.value());
-        env::set_var("GOARCH", config.architecture.value());
+        env::set_var("GOARCH", &architecture);
 
         let out_dir = path.join("bin").join("release").join(format!(
             "{}-{}",
             config.platform.value(),
-            config.architecture.value()
+            &architecture
         ));
+
         let target_name: &str;
         if let Some(t_name) = &config.name {
             target_name = t_name;
@@ -99,7 +110,7 @@ impl Builder for GoBuilder {
         Ok(out_dir)
     }
 
-    fn clean(&self) -> CausedResult<()> {
+    fn clean(&self) -> Result<()> {
         unimplemented!();
     }
 }

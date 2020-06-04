@@ -10,6 +10,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.31"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85bb70cc08ec97ca5450e6eba421deeea5f172c0fc61f78b5357b2a8e8be195f"
+
+[[package]]
 name = "ascii"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -182,6 +188,7 @@ checksum = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
 name = "landlord"
 version = "0.1.6"
 dependencies = [
+ "anyhow",
  "cargo_metadata",
  "clap",
  "rood",
@@ -267,9 +274,9 @@ checksum = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 
 [[package]]
 name = "rood"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1d0bee72475552c4671916f18d86e9fa9d94a967d5e85f71fec5bb1f83b7e65"
+checksum = "ae1fba468328b4ac3c53b35635e168c71da95fc0c41146c4fe4365872744d49b"
 dependencies = [
  "colored",
  "serde",

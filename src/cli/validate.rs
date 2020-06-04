@@ -1,11 +1,12 @@
+use anyhow::Result;
+
 use clap::ArgMatches;
 
 use rood::cli::OutputManager;
-use rood::CausedResult;
 
 use super::publish::{build, validate as val};
 
-pub fn validate(matches: &ArgMatches) -> CausedResult<()> {
+pub fn validate(matches: &ArgMatches) -> Result<()> {
     /*
     TODO: This isn't clean & needs a refactor.
     Instead of the Validate CLI command duplicating the build + validate flow of

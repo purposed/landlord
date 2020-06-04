@@ -1,9 +1,9 @@
-use crate::subprocess;
-
-use rood::{Cause, CausedResult, Error};
 use std::path::{Path, PathBuf};
 
+use anyhow::{bail, Result};
+
 use super::Dir;
+use crate::subprocess;
 
 #[derive(Debug)]
 pub struct Repository {
@@ -11,7 +11,7 @@ pub struct Repository {
 }
 
 impl Repository {
-    pub fn open<T>(path: T) -> CausedResult<Repository>
+    pub fn open<T>(path: T) -> Result<Repository>
     where
         T: AsRef<Path>,
     {
@@ -24,24 +24,24 @@ impl Repository {
         Ok(r)
     }
 
-    pub fn short_head(&self) -> CausedResult<String> {
+    pub fn short_head(&self) -> Result<String> {
         let _moved = Dir::move_to(&self.path)?;
         subprocess::run_cmd(vec!["git", "rev-parse", "--short", "HEAD"], |_l| {})
     }
 
-    pub fn ensure_exists(&self) -> CausedResult<()> {
+    pub fn ensure_exists(&self) -> Result<()> {
         let _moved = Dir::move_to(&self.path)?;
 
         let output =
             subprocess::run_cmd(vec!["git", "rev-parse", "--is-inside-work-tree"], |_l| {})?;
         if &output != "true" {
-            return Err(Error::new(Cause::InvalidState, "Not in a git repository"));
+            bail!("Not in a git repository");
         }
 
         Ok(())
     }
 
-    pub fn has_uncommitted_changes(&self) -> CausedResult<bool> {
+    pub fn has_uncommitted_changes(&self) -> Result<bool> {
         let _moved = Dir::move_to(&self.path)?;
         let output = subprocess::run_cmd(
             vec!["git", "status", "--porcelain", "--untracked-files=no"],
@@ -51,12 +51,12 @@ impl Repository {
         Ok(!output.is_empty())
     }
 
-    pub fn current_branch(&self) -> CausedResult<String> {
+    pub fn current_branch(&self) -> Result<String> {
         let _moved = Dir::move_to(&self.path)?;
         subprocess::run_cmd(vec!["git", "rev-parse", "--abbrev-ref", "HEAD"], |_l| {})
     }
 
-    pub fn commit_all(&self, message: &str) -> CausedResult<()> {
+    pub fn commit_all(&self, message: &str) -> Result<()> {
         let _moved = Dir::move_to(&self.path);
 
         if !self.has_uncommitted_changes()? {
@@ -72,14 +72,14 @@ impl Repository {
         Ok(())
     }
 
-    pub fn push(&self, remote: &str, target: &str) -> CausedResult<()> {
+    pub fn push(&self, remote: &str, target: &str) -> Result<()> {
         let _moved = Dir::move_to(&self.path);
         let _output =
             subprocess::run_cmd(vec!["git", "push", remote, target], |l| eprintln!("{}", l))?;
         Ok(())
     }
 
-    pub fn add_tag(&self, tag: &str) -> CausedResult<()> {
+    pub fn add_tag(&self, tag: &str) -> Result<()> {
         let _moved = Dir::move_to(&self.path);
         subprocess::run_cmd(vec!["git", "tag", tag], |_l| {})?;
         Ok(())

@@ -1,14 +1,14 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Child, ChildStdout, Command, Stdio};
 
-use rood::{Cause, CausedResult, Error};
+use anyhow::{anyhow, bail, Result};
 
-pub fn run_cmd<T>(args: Vec<&str>, output_proc: T) -> CausedResult<String>
+pub fn run_cmd<T>(args: Vec<&str>, output_proc: T) -> Result<String>
 where
     T: Fn(&str),
 {
     if args.is_empty() {
-        return Err(Error::new(Cause::InvalidData, "No arguments to run_cmd"));
+        bail!("No arguments to run cmd");
     }
     let mut cmd = Command::new(args.get(0).unwrap());
     let arg_cmd = cmd.args(&args[1..]);
@@ -20,24 +20,18 @@ where
 
     let status = child_process.wait()?;
     if status.success() {
-        let stdout = child_process.stdout.ok_or_else(|| {
-            Error::new(
-                Cause::GeneralError("SubprocessError".to_string()),
-                "Could not attach to stdout",
-            )
-        })?;
+        let stdout = child_process
+            .stdout
+            .ok_or_else(|| anyhow!("Could not attach to stdout"))?;
         get_stdout(stdout)
     } else {
         let code = status.code().unwrap_or(1);
         get_stderr(child_process, output_proc)?;
-        Err(Error::new(
-            Cause::GeneralError("SubprocessError".to_string()),
-            &format!("Status: {}", code),
-        ))
+        Err(anyhow!("Status: {}", code))
     }
 }
 
-fn get_stdout(stdout: ChildStdout) -> CausedResult<String> {
+fn get_stdout(stdout: ChildStdout) -> Result<String> {
     let total_vec: Vec<String> = BufReader::new(stdout)
         .lines()
         .filter_map(|line| line.ok())
@@ -46,16 +40,13 @@ fn get_stdout(stdout: ChildStdout) -> CausedResult<String> {
     Ok(total_vec.join("\n").trim().to_string())
 }
 
-pub fn get_stderr<T>(c: Child, output_proc: T) -> CausedResult<()>
+pub fn get_stderr<T>(c: Child, output_proc: T) -> Result<()>
 where
     T: Fn(&str),
 {
-    let stderr = c.stderr.ok_or_else(|| {
-        Error::new(
-            Cause::GeneralError("SubprocessError".to_string()),
-            "Could not attach to stderr",
-        )
-    })?;
+    let stderr = c
+        .stderr
+        .ok_or_else(|| anyhow!("Could not attach to stderr"))?;
 
     BufReader::new(stderr)
         .lines()

@@ -1,15 +1,16 @@
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
 
+use anyhow::{Error, Result};
+
 use rood::sys::{file, Architecture, Platform};
-use rood::{Cause, CausedResult, Error};
 
 use semver::Version;
 
 use serde::{Deserialize, Serialize};
 
 use crate::ProjectStack;
-use std::io::Write;
 
 fn default_checksum() -> bool {
     false
@@ -67,27 +68,22 @@ pub struct Lease {
 }
 
 impl Lease {
-    pub fn new(path: PathBuf) -> CausedResult<Lease> {
+    pub fn new(path: PathBuf) -> Result<Lease> {
         file::ensure_exists(&path)?;
-        let mut l: Lease = toml::from_str(&fs::read_to_string(&path)?).or_else(|e| {
-            Err(Error::new(
-                Cause::SerializationError,
-                &format!("Could not read lease: {}", e),
-            ))
-        })?;
+
+        let mut l: Lease = toml::from_str(&fs::read_to_string(&path)?)
+            .map_err(|e| Error::new(e).context("Could not read lease"))?;
+
         l.path = path;
 
         Ok(l)
     }
 
-    pub fn save(&self) -> CausedResult<()> {
+    pub fn save(&self) -> Result<()> {
         let mut file_handle = fs::File::create(&self.path)?;
-        let raw = toml::to_string_pretty(&self).or_else(|e| {
-            Err(Error::new(
-                Cause::SerializationError,
-                &format!("Could not write lease: {}", e),
-            ))
-        })?;
+
+        let raw = toml::to_string_pretty(&self)
+            .map_err(|e| Error::new(e).context("Could not write lease"))?;
 
         file_handle.write_all(raw.as_bytes())?;
         Ok(())

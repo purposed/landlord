@@ -1,20 +1,16 @@
 use std::path::PathBuf;
 
-use rood::CausedResult;
+use anyhow::Result;
+
+use semver::Version;
 
 use crate::lease::{BuildConfig, Validation};
 use crate::{BuildMode, Project};
-use semver::Version;
 
 // Builder defines a backend for building specific stacks.
 pub trait Builder {
-    fn build(
-        &self,
-        project: &Project,
-        cfg: &BuildConfig,
-        mode: &BuildMode,
-    ) -> CausedResult<PathBuf>;
-    fn clean(&self) -> CausedResult<()>;
+    fn build(&self, project: &Project, cfg: &BuildConfig, mode: &BuildMode) -> Result<PathBuf>;
+    fn clean(&self) -> Result<()>;
 }
 
 pub trait Validator {
@@ -27,5 +23,5 @@ pub trait Bumper {
         project: &Project,
         old_version: &Version,
         new_version: &Version,
-    ) -> CausedResult<()>;
+    ) -> Result<()>;
 }

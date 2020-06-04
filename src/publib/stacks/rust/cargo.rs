@@ -4,7 +4,8 @@ use std::io;
 use std::io::{Read, Write};
 use std::path::Path;
 
-use rood::{Cause, CausedResult, Error};
+use anyhow::{anyhow, Result};
+
 use semver::Version;
 
 fn load_from_file(path: &Path) -> io::Result<String> {
@@ -14,7 +15,7 @@ fn load_from_file(path: &Path) -> io::Result<String> {
     Ok(s)
 }
 
-pub fn set_package_version(manifest_path: &Path, new_version: &Version) -> CausedResult<()> {
+pub fn set_package_version(manifest_path: &Path, new_version: &Version) -> Result<()> {
     let temp_manifest_path = manifest_path
         .parent()
         .unwrap_or_else(|| Path::new("."))
@@ -24,7 +25,7 @@ pub fn set_package_version(manifest_path: &Path, new_version: &Version) -> Cause
         let manifest = load_from_file(manifest_path)?;
         let mut manifest: toml_edit::Document = manifest
             .parse()
-            .map_err(|_e| Error::new(Cause::IOError, "Couldn't parse Cargo.toml manifest"))?;
+            .map_err(|e| anyhow!("Couldn't parse Cargo.toml manifest: {}", e))?;
         manifest["package"]["version"] = toml_edit::value(format!("{}", new_version).as_ref());
 
         let mut file_out = File::create(&temp_manifest_path)?;
@@ -34,16 +35,11 @@ pub fn set_package_version(manifest_path: &Path, new_version: &Version) -> Cause
     Ok(())
 }
 
-pub fn update_lock(manifest_path: &Path) -> CausedResult<()> {
+pub fn update_lock(manifest_path: &Path) -> Result<()> {
     cargo_metadata::MetadataCommand::new()
         .manifest_path(manifest_path)
         .exec()
-        .map_err(|e| {
-            Error::new(
-                Cause::IOError,
-                &format!("Couldn't update Cargo.lock: {}", e),
-            )
-        })?;
+        .map_err(|e| anyhow!("Couldn't update Cargo.lock: {}", e))?;
 
     Ok(())
 }

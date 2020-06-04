@@ -20,6 +20,11 @@ jobs:
         run: |
           cargo build --release
           sudo mv ./target/release/landlord /usr/local/bin/landlord
+      - name: Mount build cache
+        uses: actions/cache@v1
+        with:
+          path: "target"
+          key: landlord-build-cache
       - name: Landlord Release
         run: |
           landlord validate

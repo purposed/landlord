@@ -1,31 +1,28 @@
+use anyhow::{ensure, Result};
+
 use clap::ArgMatches;
 
 use rood::cli::OutputManager;
-use rood::{Cause, CausedResult, Error};
 
 use publib::{BuildMode, MetaBuilder, MetaBumper, MetaValidator, Project};
 
-fn ensure_ready(project: &Project, output: &OutputManager) -> CausedResult<()> {
+fn ensure_ready(project: &Project, output: &OutputManager) -> Result<()> {
     // Step 1 - Ensure git repository in project.
     output.step("[Git State]");
 
     let pushed = output.push();
 
-    if project.repository.has_uncommitted_changes()? {
-        return Err(Error::new(
-            Cause::InvalidState,
-            "Repository has uncommitted changes.",
-        ));
-    }
+    ensure!(
+        !project.repository.has_uncommitted_changes()?,
+        "Repository has uncomitted changes"
+    );
 
     pushed.step("Has No Uncommitted Changes");
 
-    if &project.repository.current_branch()? != "master" {
-        return Err(Error::new(
-            Cause::InvalidState,
-            "Repository is not on master",
-        ));
-    }
+    ensure!(
+        &project.repository.current_branch()? != "master",
+        "Repository is not on master"
+    );
 
     pushed.step("Is on master branch");
 
@@ -33,14 +30,14 @@ fn ensure_ready(project: &Project, output: &OutputManager) -> CausedResult<()> {
     Ok(())
 }
 
-pub fn build(matches: &ArgMatches, project: &Project, output: &OutputManager) -> CausedResult<()> {
+pub fn build(matches: &ArgMatches, project: &Project, output: &OutputManager) -> Result<()> {
     let builder = MetaBuilder::default();
     builder.build(&project, BuildMode::get(matches), &output)?;
 
     Ok(())
 }
 
-pub fn validate(project: &Project, output: &OutputManager) -> CausedResult<()> {
+pub fn validate(project: &Project, output: &OutputManager) -> Result<()> {
     let validator = MetaValidator::default();
     validator.validate(&project, output)
 }
@@ -50,12 +47,12 @@ fn bump_version(
     level: &str,
     dry: bool,
     output: &OutputManager,
-) -> CausedResult<()> {
+) -> Result<()> {
     let bumper = MetaBumper::default();
     bumper.bump_version(project, level, dry, output)
 }
 
-fn trigger_release(project: &Project, dry: bool, output: &OutputManager) -> CausedResult<()> {
+fn trigger_release(project: &Project, dry: bool, output: &OutputManager) -> Result<()> {
     output.step("[Push]");
     let pushed = output.push();
 
@@ -89,7 +86,7 @@ fn trigger_release(project: &Project, dry: bool, output: &OutputManager) -> Caus
     Ok(())
 }
 
-pub fn publish(matches: &ArgMatches) -> CausedResult<()> {
+pub fn publish(matches: &ArgMatches) -> Result<()> {
     let verbose = matches.is_present("verbose");
     let output = OutputManager::new(verbose);
 

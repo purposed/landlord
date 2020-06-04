@@ -1,11 +1,13 @@
-use crate::{BuildConfig, BuildMode, Builder, Project, ProjectStack};
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+use anyhow::Result;
+
+use rood::cli::OutputManager;
 
 use crate::stacks::go::GoBuilder;
 use crate::stacks::rust::RustBuilder;
-use rood::cli::OutputManager;
-use rood::CausedResult;
-use std::collections::HashMap;
-use std::path::PathBuf;
+use crate::{BuildConfig, BuildMode, Builder, Project, ProjectStack};
 
 type IBuilder = Box<dyn Builder>;
 
@@ -32,7 +34,7 @@ impl MetaBuilder {
         project: &Project,
         mode: BuildMode,
         output: &OutputManager,
-    ) -> CausedResult<HashMap<PathBuf, BuildConfig>> {
+    ) -> Result<HashMap<PathBuf, BuildConfig>> {
         let builder = self.builders.get(&project.lease.stack).unwrap();
         output.step(&format!("[Build/{:?}] - {}", mode, project.lease.name));
 

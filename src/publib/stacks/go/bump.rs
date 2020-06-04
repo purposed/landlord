@@ -1,4 +1,5 @@
-use rood::CausedResult;
+use anyhow::Result;
+
 use semver::Version;
 
 use crate::{Bumper, Project};
@@ -13,7 +14,7 @@ impl GoBumper {
 }
 
 impl Bumper for GoBumper {
-    fn bump_all(&self, _: &Project, _: &Version, _: &Version) -> CausedResult<()> {
+    fn bump_all(&self, _: &Project, _: &Version, _: &Version) -> Result<()> {
         Ok(())
     }
 }

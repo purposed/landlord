@@ -1,7 +1,8 @@
-use semver::Version;
+use anyhow::Result;
 
 use rood::sys::file::ensure_exists;
-use rood::CausedResult;
+
+use semver::Version;
 
 use super::cargo;
 use crate::{Bumper, Project};
@@ -21,7 +22,7 @@ impl Bumper for RustBumper {
         project: &Project,
         _current_version: &Version,
         next_version: &Version,
-    ) -> CausedResult<()> {
+    ) -> Result<()> {
         // Bump Cargo.toml
         let cargo_toml_path = project.path.join("Cargo.toml");
         ensure_exists(&cargo_toml_path)?;

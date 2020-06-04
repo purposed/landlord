@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use rood::CausedResult;
+use anyhow::Result;
 
 pub struct Dir {
     return_path: PathBuf,
@@ -9,7 +9,7 @@ pub struct Dir {
 
 // TODO: Generalize this whole deferred struct into either a defer object or a defer!() macro.
 impl Dir {
-    pub fn move_to<T>(path: T) -> CausedResult<Dir>
+    pub fn move_to<T>(path: T) -> Result<Dir>
     where
         T: AsRef<Path>,
     {
