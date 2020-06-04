@@ -15,7 +15,7 @@ name = "landlord"
 path = "src/main.rs"
 
 [dependencies]
-cargo_metadata = "0.9.1"
+cargo_metadata = "0.10.0"
 clap = "2.33.0"
 rood = { version = "0.1.1", features = ["serialization"] }
 semver = { version = "0.9.0", features = ["serde"] }
