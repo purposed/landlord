@@ -267,9 +267,9 @@ checksum = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 
 [[package]]
 name = "rood"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1d0bee72475552c4671916f18d86e9fa9d94a967d5e85f71fec5bb1f83b7e65"
+checksum = "ae1fba468328b4ac3c53b35635e168c71da95fc0c41146c4fe4365872744d49b"
 dependencies = [
  "colored",
  "serde",
