@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
+use anyhow::Result;
+
 use rood::sys::file;
-use rood::CausedResult;
 
 use crate::git::Repository;
 use crate::{constants, Lease};
@@ -14,7 +15,7 @@ pub struct Project {
 }
 
 impl Project {
-    pub fn new<T>(root_dir: T) -> CausedResult<Project>
+    pub fn new<T>(root_dir: T) -> Result<Project>
     where
         T: AsRef<Path>,
     {

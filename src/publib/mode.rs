@@ -1,7 +1,8 @@
 use std::convert::TryFrom;
 
+use anyhow::{anyhow, Error, Result};
+
 use clap::ArgMatches;
-use rood::{Cause, CausedResult, Error};
 
 const DEFAULT_BUILD_MODE: BuildMode = BuildMode::Release;
 
@@ -24,14 +25,11 @@ impl BuildMode {
 impl TryFrom<String> for BuildMode {
     type Error = Error;
 
-    fn try_from(other: String) -> CausedResult<BuildMode> {
+    fn try_from(other: String) -> Result<BuildMode> {
         match other.as_ref() {
             "debug" => Ok(BuildMode::Debug),
             "release" => Ok(BuildMode::Release),
-            _ => Err(Error::new(
-                Cause::InvalidData,
-                &format!("Cannot parse '{}' as BuildMode", other),
-            )),
+            _ => Err(anyhow!("Cannot parse {} as BuildMode", other)),
         }
     }
 }

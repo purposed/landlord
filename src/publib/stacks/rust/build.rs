@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use rood::CausedResult;
+use anyhow::Result;
 
 use crate::{subprocess, Project};
 use crate::{BuildConfig, BuildMode, Builder};
@@ -15,12 +15,7 @@ impl RustBuilder {
 }
 
 impl Builder for RustBuilder {
-    fn build(
-        &self,
-        project: &Project,
-        _config: &BuildConfig,
-        mode: &BuildMode,
-    ) -> CausedResult<PathBuf> {
+    fn build(&self, project: &Project, _config: &BuildConfig, mode: &BuildMode) -> Result<PathBuf> {
         let mut cmd = vec!["cargo", "build", "--all-features"];
 
         let out_dir;
@@ -38,7 +33,7 @@ impl Builder for RustBuilder {
         Ok(project.path.join("target").join(out_dir))
     }
 
-    fn clean(&self) -> CausedResult<()> {
+    fn clean(&self) -> Result<()> {
         unimplemented!();
     }
 }

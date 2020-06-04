@@ -1,12 +1,14 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
+
+use anyhow::{bail, Result};
+
+use rood::cli::OutputManager;
+use rood::sys::file;
 
 use crate::stacks::go::GoBumper;
 use crate::stacks::rust::RustBumper;
 use crate::{Bumper, Project, ProjectStack};
-use rood::cli::OutputManager;
-use rood::sys::file;
-use rood::{Cause, CausedResult, Error};
-use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct MetaBumper {
@@ -39,7 +41,7 @@ impl MetaBumper {
         level: &str,
         dry: bool,
         output: &OutputManager,
-    ) -> CausedResult<()> {
+    ) -> Result<()> {
         output.step("[Version]");
 
         let pushed = output.push();
@@ -54,21 +56,14 @@ impl MetaBumper {
                 pushed.success("No version bump requested");
                 return Ok(());
             }
-            _ => {
-                return Err(Error::new(
-                    Cause::InvalidData,
-                    "Invalid version increment level",
-                ))
-            }
+            _ => bail!("Invalid version increment level"),
         }
+
         if !pushed.prompt_yn(
             &format!("Really Publish {} => {} ?", current_version, new_version),
             true,
         )? {
-            return Err(Error::new(
-                Cause::GeneralError(String::from("Abort")),
-                "Aborted.",
-            ));
+            bail!("Aborted");
         }
         project.lease.version = new_version.clone();
 

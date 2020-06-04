@@ -1,18 +1,19 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use anyhow::Result;
+
 use clap::ArgMatches;
 
 use publib::{zip, BuildConfig, BuildMode, MetaBuilder, Project};
 
 use rood::cli::OutputManager;
-use rood::CausedResult;
 
 use sha2::{Digest, Sha256};
 use std::fs::DirEntry;
 use std::io::Write;
 
-fn create_artifact_dir<T>(path: T, output: &OutputManager) -> CausedResult<()>
+fn create_artifact_dir<T>(path: T, output: &OutputManager) -> Result<()>
 where
     T: AsRef<Path>,
 {
@@ -32,10 +33,16 @@ fn format_artifact_path(
     project: &Project,
     build_dir: &str,
 ) -> String {
+    let architecture = {
+        let archs = config.architecture.value();
+        // If we made it here, unwrap is safe.
+        archs.get(0).unwrap().clone()
+    };
+
     template
         .replace("$(BUILD)", build_dir)
         .replace("$(PLATFORM)", &config.platform.value())
-        .replace("$(ARCHITECTURE)", &config.architecture.value())
+        .replace("$(ARCHITECTURE)", &architecture)
         .replace("$(PROJECT)", project.path.to_str().unwrap())
 }
 
@@ -44,7 +51,7 @@ fn extract_artifacts(
     config: &BuildConfig,
     project: &Project,
     output: &OutputManager,
-) -> CausedResult<String> {
+) -> Result<String> {
     output.step(&format!(
         "[Bundle/{}-{}]",
         config.platform, config.architecture
@@ -111,7 +118,7 @@ fn extract_artifacts(
     Ok(String::from(artifact_dir.to_str().unwrap()))
 }
 
-pub fn release(matches: &ArgMatches) -> CausedResult<()> {
+pub fn release(matches: &ArgMatches) -> Result<()> {
     let verbose = matches.is_present("verbose");
     let output = OutputManager::new(verbose);
 

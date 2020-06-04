@@ -1,11 +1,14 @@
+use std::collections::HashMap;
+
+use anyhow::Result;
+
+use rood::cli::OutputManager;
+
 use crate::lease::Validation;
 use crate::stacks::go::GoValidator;
 use crate::stacks::rust::RustValidator;
 use crate::subprocess;
 use crate::{Project, ProjectStack, Validator};
-use rood::cli::OutputManager;
-use rood::CausedResult;
-use std::collections::HashMap;
 
 pub type IValidator = Box<dyn Validator>;
 
@@ -28,7 +31,7 @@ impl MetaValidator {
         MetaValidator::new(hsh)
     }
 
-    fn run_validation(&self, validation: &Validation, output: &OutputManager) -> CausedResult<()> {
+    fn run_validation(&self, validation: &Validation, output: &OutputManager) -> Result<()> {
         output.step(&format!("[{}]", validation.name));
 
         let arguments: Vec<&str> = validation.command.iter().map(|s| &**s).collect();
@@ -39,7 +42,7 @@ impl MetaValidator {
         Ok(())
     }
 
-    pub fn validate(&self, project: &Project, output: &OutputManager) -> CausedResult<()> {
+    pub fn validate(&self, project: &Project, output: &OutputManager) -> Result<()> {
         output.step("[Validate]");
 
         // First -- run default validations.
