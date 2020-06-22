@@ -20,7 +20,7 @@ cargo_metadata = "0.10.0"
 clap = "2.33.1"
 rood = { version = "0.2.0", features = ["serialization"] }
 semver = { version = "0.10.0", features = ["serde"] }
-serde = { version = "1.0.112", features = ["derive"] }
+serde = { version = "1.0.114", features = ["derive"] }
 sha2 = "0.8.2"
 toml = "0.5.6"
 toml_edit = "0.2.0"
