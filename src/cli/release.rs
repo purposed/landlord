@@ -99,8 +99,8 @@ fn extract_artifacts(
             ));
             let mut checksum = Sha256::new();
             let art_data = fs::read(&artifact_src_path)?;
-            checksum.input(art_data);
-            let checksum_value = checksum.result();
+            checksum.update(art_data);
+            let checksum_value = checksum.finalize();
             fs::File::create(checksum_file_path)?.write_all(
                 &format!(
                     "{:x}  {}\n",
