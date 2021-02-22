@@ -18,7 +18,7 @@ path = "src/main.rs"
 anyhow = "1.0"
 cargo_metadata = "0.12.3"
 clap = "2.33.3"
-rood = { version = "0.3.2", features = ["serialization"] }
+rood = { version = "0.4.0", features = ["serialization"] }
 semver = { version = "0.11.0", features = ["serde"] }
 serde = { version = "1.0.123", features = ["derive"] }
 sha2 = "0.9.3"
