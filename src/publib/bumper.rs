@@ -49,9 +49,9 @@ impl MetaBumper {
         let current_version = project.lease.version.clone();
         let mut new_version = project.lease.version.clone();
         match level {
-            "major" => new_version.increment_major(),
-            "minor" => new_version.increment_minor(),
-            "patch" => new_version.increment_patch(),
+            "major" => new_version.major = new_version.major + 1,
+            "minor" => new_version.minor = new_version.minor + 1,
+            "patch" => new_version.patch = new_version.patch + 1,
             "none" => {
                 pushed.success("No version bump requested");
                 return Ok(());

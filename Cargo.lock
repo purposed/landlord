@@ -79,7 +79,7 @@ checksum = "081e3f0755c1f380c2d010481b6fa2e02973586d5f2b24eebb7a2a1d98b143d8"
 dependencies = [
  "camino",
  "cargo-platform",
- "semver",
+ "semver 0.11.0",
  "semver-parser",
  "serde",
  "serde_json",
@@ -189,7 +189,7 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "rood",
- "semver",
+ "semver 1.0.3",
  "serde",
  "sha2",
  "toml",
@@ -313,6 +313,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
 dependencies = [
  "semver-parser",
+ "serde",
+]
+
+[[package]]
+name = "semver"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f3aac57ee7f3272d8395c6e4f502f434f0e289fcd62876f70daa008c20dcabe"
+dependencies = [
  "serde",
 ]
 
