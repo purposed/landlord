@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use anyhow::{bail, Result};
+use anyhow::{bail, ensure, Result};
 
 use rood::cli::OutputManager;
 use rood::sys::file;
+use semver::Version;
 
 use crate::stacks::go::GoBumper;
 use crate::stacks::rust::RustBumper;
@@ -35,6 +36,33 @@ impl MetaBumper {
         vec![PathBuf::from("README.md")]
     }
 
+    fn get_new_version_number(mut version: Version, level: &str) -> Result<Version> {
+        if level == "none" {
+            return Ok(version);
+        }
+
+        if level == "patch" {
+            version.patch += 1;
+            return Ok(version);
+        }
+
+        version.patch = 0;
+
+        if level == "minor" {
+            version.minor += 1;
+            return Ok(version);
+        }
+
+        version.minor = 0;
+
+        if level == "major" {
+            version.major += 1;
+            return Ok(version);
+        }
+
+        bail!("Invalid version increment level");
+    }
+
     pub fn bump_version(
         &self,
         project: &mut Project,
@@ -45,26 +73,19 @@ impl MetaBumper {
         output.step("[Version]");
 
         let pushed = output.push();
+
         // TODO: Use enum instead of &str for bump level.
         let current_version = project.lease.version.clone();
-        let mut new_version = project.lease.version.clone();
-        match level {
-            "major" => new_version.major = new_version.major + 1,
-            "minor" => new_version.minor = new_version.minor + 1,
-            "patch" => new_version.patch = new_version.patch + 1,
-            "none" => {
-                pushed.success("No version bump requested");
-                return Ok(());
-            }
-            _ => bail!("Invalid version increment level"),
-        }
+        let new_version = Self::get_new_version_number(current_version.clone(), level)?;
 
-        if !pushed.prompt_yn(
-            &format!("Really Publish {} => {} ?", current_version, new_version),
-            true,
-        )? {
-            bail!("Aborted");
-        }
+        ensure!(
+            pushed.prompt_yn(
+                &format!("Really publish {} => {} ?", current_version, new_version),
+                true
+            )?,
+            "Aborted"
+        );
+
         project.lease.version = new_version.clone();
 
         if !dry {
@@ -73,7 +94,7 @@ impl MetaBumper {
 
             // Bump stack-specific files.
             self.bumpers.get(&project.lease.stack).unwrap().bump_all(
-                &project,
+                project,
                 &current_version,
                 &new_version,
             )?;

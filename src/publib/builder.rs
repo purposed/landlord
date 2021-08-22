@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 
 use rood::cli::OutputManager;
+use rood::sys::{Architecture, Platform};
 
 use crate::stacks::go::GoBuilder;
 use crate::stacks::rust::RustBuilder;
@@ -40,11 +41,18 @@ impl MetaBuilder {
 
         let mut hsh_map = HashMap::new();
 
+        let current_arch = Architecture::detect();
+        let current_platform = Platform::detect();
+
         for config in project.lease.builds.iter() {
             let stack_output = output.push();
 
             stack_output.step(&format!("[{}-{}]", config.platform, config.architecture));
-            let build_path = builder.build(&project, config, &mode)?;
+            if config.architecture != current_arch || config.platform != current_platform {
+                stack_output.push().step("Skip");
+                continue;
+            }
+            let build_path = builder.build(project, config, &mode)?;
             stack_output.push().debug(&format!(
                 "Build can be found in {}",
                 build_path.to_str().unwrap()

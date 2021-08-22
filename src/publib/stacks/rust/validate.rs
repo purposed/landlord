@@ -12,22 +12,24 @@ impl RustValidator {
 
 impl Validator for RustValidator {
     fn get_default_validations(&self) -> Vec<Validation> {
-        let mut validations = Vec::new();
-
-        validations.push(Validation {
-            name: String::from("Rust Tests"),
-            command: vec![String::from("cargo"), String::from("test")],
-        });
-        validations.push(Validation {
-            name: String::from("Clippy"),
-            command: vec![
-                String::from("cargo"),
-                String::from("clippy"),
-                String::from("--"),
-                String::from("-Dwarnings"),
-            ],
-        });
-
-        validations
+        vec![
+            Validation {
+                name: String::from("Rust Tests"),
+                command: vec![
+                    String::from("cargo"),
+                    String::from("test"),
+                    String::from("--all-features"),
+                ],
+            },
+            Validation {
+                name: String::from("Clippy"),
+                command: vec![
+                    String::from("cargo"),
+                    String::from("clippy"),
+                    String::from("--"),
+                    String::from("-Dwarnings"),
+                ],
+            },
+        ]
     }
 }

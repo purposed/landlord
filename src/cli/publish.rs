@@ -20,7 +20,7 @@ fn ensure_ready(project: &Project, output: &OutputManager) -> Result<()> {
     pushed.step("Has No Uncommitted Changes");
 
     ensure!(
-        &project.repository.current_branch()? != "master",
+        &project.repository.current_branch()? == "master",
         "Repository is not on master"
     );
 
@@ -32,14 +32,14 @@ fn ensure_ready(project: &Project, output: &OutputManager) -> Result<()> {
 
 pub fn build(matches: &ArgMatches, project: &Project, output: &OutputManager) -> Result<()> {
     let builder = MetaBuilder::default();
-    builder.build(&project, BuildMode::get(matches), &output)?;
+    builder.build(project, BuildMode::get(matches), output)?;
 
     Ok(())
 }
 
 pub fn validate(project: &Project, output: &OutputManager) -> Result<()> {
     let validator = MetaValidator::default();
-    validator.validate(&project, output)
+    validator.validate(project, output)
 }
 
 fn bump_version(

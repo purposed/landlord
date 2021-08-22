@@ -54,6 +54,7 @@ impl Repository {
     pub fn current_branch(&self) -> Result<String> {
         let _moved = Dir::move_to(&self.path)?;
         subprocess::run_cmd(vec!["git", "rev-parse", "--abbrev-ref", "HEAD"], |_l| {})
+            .map(|f| f.trim().to_string())
     }
 
     pub fn commit_all(&self, message: &str) -> Result<()> {

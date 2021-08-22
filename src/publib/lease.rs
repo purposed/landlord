@@ -61,6 +61,7 @@ pub struct Lease {
     pub builds: Vec<BuildConfig>,
 
     #[serde(rename = "artifact")]
+    #[serde(default = "Vec::default")]
     pub artifacts: Vec<ArtifactConfig>,
 
     #[serde(rename = "validation")]

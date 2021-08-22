@@ -7,6 +7,10 @@ artifact_directory = 'artifacts'
 architecture = 'amd64'
 platform = 'linux'
 
+[[build]]
+architecture = "arm64"
+platform = "darwin"
+
 [[artifact]]
 name = 'landlord'
 include_checksum = true

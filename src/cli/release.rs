@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::Result;
 
@@ -47,7 +47,7 @@ fn format_artifact_path(
 }
 
 fn extract_artifacts(
-    build_path: &PathBuf,
+    build_path: &Path,
     config: &BuildConfig,
     project: &Project,
     output: &OutputManager,
@@ -63,55 +63,59 @@ fn extract_artifacts(
         .join(&format!("{}-{}", config.platform, config.architecture));
     fs::create_dir_all(&artifact_dir)?;
 
-    for artifact in project.lease.artifacts.iter() {
-        let artifact_src_path = format_artifact_path(
-            &artifact.path_template,
-            config,
-            project,
-            build_path.to_str().unwrap(),
-        );
-
-        let artifact_dst_path;
-
-        if let Some(dst_template) = &artifact.target_name_template {
-            artifact_dst_path = artifact_dir.join(format_artifact_path(
-                dst_template,
+    if !project.lease.artifacts.is_empty() {
+        for artifact in project.lease.artifacts.iter() {
+            let artifact_src_path = format_artifact_path(
+                &artifact.path_template,
                 config,
                 project,
                 build_path.to_str().unwrap(),
-            ))
-        } else {
-            artifact_dst_path = artifact_dir.join(&artifact.name);
-        }
+            );
 
-        pushed.step(&format!(
-            "{} ~> {}",
-            artifact_src_path,
-            artifact_dst_path.to_str().unwrap()
-        ));
+            let artifact_dst_path;
 
-        if artifact.include_checksum {
-            // Compute checksum of artifact.
-            let checksum_file_path = artifact_dst_path.with_extension("sha256");
-            pushed.debug(&format!(
-                "Checksum file: {}",
-                checksum_file_path.to_str().unwrap()
+            if let Some(dst_template) = &artifact.target_name_template {
+                artifact_dst_path = artifact_dir.join(format_artifact_path(
+                    dst_template,
+                    config,
+                    project,
+                    build_path.to_str().unwrap(),
+                ))
+            } else {
+                artifact_dst_path = artifact_dir.join(&artifact.name);
+            }
+
+            pushed.step(&format!(
+                "{} ~> {}",
+                artifact_src_path,
+                artifact_dst_path.to_str().unwrap()
             ));
-            let mut checksum = Sha256::new();
-            let art_data = fs::read(&artifact_src_path)?;
-            checksum.update(art_data);
-            let checksum_value = checksum.finalize();
-            fs::File::create(checksum_file_path)?.write_all(
-                &format!(
-                    "{:x}  {}\n",
-                    checksum_value,
-                    artifact_dst_path.file_name().unwrap().to_str().unwrap()
-                )
-                .as_bytes(),
-            )?;
-        }
 
-        fs::copy(&artifact_src_path, artifact_dst_path)?;
+            if artifact.include_checksum {
+                // Compute checksum of artifact.
+                let checksum_file_path = artifact_dst_path.with_extension("sha256");
+                pushed.debug(&format!(
+                    "Checksum file: {}",
+                    checksum_file_path.to_str().unwrap()
+                ));
+                let mut checksum = Sha256::new();
+                let art_data = fs::read(&artifact_src_path)?;
+                checksum.update(art_data);
+                let checksum_value = checksum.finalize();
+                fs::File::create(checksum_file_path)?.write_all(
+                    format!(
+                        "{:x}  {}\n",
+                        checksum_value,
+                        artifact_dst_path.file_name().unwrap().to_str().unwrap()
+                    )
+                    .as_bytes(),
+                )?;
+            }
+
+            fs::copy(&artifact_src_path, artifact_dst_path)?;
+        }
+    } else {
+        output.push().step("Skip - No Artifacts");
     }
 
     output.success("[Bundle] - OK");
@@ -132,7 +136,9 @@ pub fn release(matches: &ArgMatches) -> Result<()> {
     output.step("[Release]");
 
     // Phase 1 - Ensure artifact dir exists.
-    create_artifact_dir(&project.lease.artifact_directory, &output.push())?;
+    if !project.lease.artifacts.is_empty() {
+        create_artifact_dir(&project.lease.artifact_directory, &output.push())?;
+    }
 
     // Phase 2 - Perform all builds.
     let metabuilder = MetaBuilder::default();
@@ -147,28 +153,34 @@ pub fn release(matches: &ArgMatches) -> Result<()> {
         let pushed = output.push();
         pushed.step("[Artifact Compression]");
 
-        // TODO: Move to rood.
-        let _dir = publib::git::dirmove::Dir::move_to(&artifact_dir)?;
+        if !project.lease.artifacts.is_empty() {
+            // TODO: Move to rood.
+            let _dir = publib::git::dirmove::Dir::move_to(&artifact_dir)?;
 
-        let dir_entries = fs::read_dir(".")?.collect::<std::io::Result<Vec<DirEntry>>>()?;
+            let dir_entries = fs::read_dir(".")?.collect::<std::io::Result<Vec<DirEntry>>>()?;
 
-        let out_zip = Path::new(".").join(&format!(
-            "{}-{}-{}",
-            &config.name.as_ref().unwrap_or(&project.lease.name),
-            &config.platform,
-            &config.architecture
-        ));
+            let out_zip = Path::new(".").join(&format!(
+                "{}-{}-{}",
+                &config.name.as_ref().unwrap_or(&project.lease.name),
+                &config.platform,
+                &config.architecture
+            ));
 
-        let entry_names: Vec<String> = dir_entries
-            .iter()
-            .map(|f| f.path().to_str().unwrap().to_string())
-            .collect();
+            pushed.push().step(&out_zip.to_string_lossy());
 
-        zip::zip_directory(out_zip.to_str().unwrap(), &entry_names)?;
+            let entry_names: Vec<String> = dir_entries
+                .iter()
+                .map(|f| f.path().to_str().unwrap().to_string())
+                .collect();
 
-        // After zipping, delete original artifacts.
-        for entry in dir_entries.iter() {
-            fs::remove_file(&entry.path())?;
+            zip::zip_directory(out_zip.to_str().unwrap(), &entry_names)?;
+
+            // After zipping, delete original artifacts.
+            for entry in dir_entries.iter() {
+                fs::remove_file(&entry.path())?;
+            }
+        } else {
+            pushed.push().step("Skip - No Artifacts")
         }
 
         pushed.success("[Artifact Compression] - OK");

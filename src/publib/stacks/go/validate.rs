@@ -12,9 +12,7 @@ impl GoValidator {
 
 impl Validator for GoValidator {
     fn get_default_validations(&self) -> Vec<Validation> {
-        let mut validations = Vec::new();
-
-        validations.push(Validation {
+        vec![Validation {
             name: String::from("Go Test"),
             command: vec![
                 String::from("go"),
@@ -22,8 +20,6 @@ impl Validator for GoValidator {
                 String::from("-race"),
                 String::from("./..."),
             ],
-        });
-
-        validations
+        }]
     }
 }
