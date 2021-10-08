@@ -26,10 +26,10 @@ pub fn set_package_version(manifest_path: &Path, new_version: &Version) -> Resul
         let mut manifest: toml_edit::Document = manifest
             .parse()
             .map_err(|e| anyhow!("Couldn't parse Cargo.toml manifest: {}", e))?;
-        manifest["package"]["version"] = toml_edit::value(format!("{}", new_version).as_ref());
+        manifest["package"]["version"] = toml_edit::value(format!("{}", new_version));
 
         let mut file_out = File::create(&temp_manifest_path)?;
-        file_out.write_all(manifest.to_string_in_original_order().as_bytes())?;
+        file_out.write_all(manifest.to_string().as_bytes())?;
     }
     fs::rename(temp_manifest_path, manifest_path)?;
     Ok(())
