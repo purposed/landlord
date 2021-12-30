@@ -17,7 +17,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1.0"
 cargo_metadata = "0.14.1"
-clap = "2.33.3"
+clap = "2.34.0"
 rood = { version = "0.4.1", features = ["serialization"] }
 semver = { version = "1.0.4", features = ["serde"] }
 serde = { version = "1.0.132", features = ["derive"] }
