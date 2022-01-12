@@ -41,7 +41,10 @@ fn format_artifact_path(
 
     template
         .replace("$(BUILD)", build_dir)
-        .replace("$(PLATFORM)", &config.platform.value())
+        .replace(
+            "$(PLATFORM)",
+            &config.platform.value().first().unwrap().clone(),
+        )
         .replace("$(ARCHITECTURE)", &architecture)
         .replace("$(PROJECT)", project.path.to_str().unwrap())
 }

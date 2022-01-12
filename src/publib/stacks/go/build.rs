@@ -52,15 +52,16 @@ impl Builder for GoBuilder {
                 .clone()
         };
 
+        let platform = config.platform.value().first().unwrap().clone();
+
         let path = project.path.clone();
-        env::set_var("GOOS", config.platform.value());
+        env::set_var("GOOS", &platform);
         env::set_var("GOARCH", &architecture);
 
-        let out_dir = path.join("bin").join("release").join(format!(
-            "{}-{}",
-            config.platform.value(),
-            &architecture
-        ));
+        let out_dir = path
+            .join("bin")
+            .join("release")
+            .join(format!("{}-{}", platform, &architecture));
 
         let target_name: &str;
         if let Some(t_name) = &config.name {
