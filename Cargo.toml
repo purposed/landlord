@@ -23,4 +23,4 @@ semver = { version = "1.0.4", features = ["serde"] }
 serde = { version = "1.0.135", features = ["derive"] }
 sha2 = "0.9.8"
 toml = "0.5.8"
-toml_edit = "0.5.0"
+toml_edit = "0.13.0"
