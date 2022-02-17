@@ -21,6 +21,6 @@ clap = "2.34.0"
 rood = { version = "0.5.0", features = ["serialization"] }
 semver = { version = "1.0.5", features = ["serde"] }
 serde = { version = "1.0.136", features = ["derive"] }
-sha2 = "0.10.1"
+sha2 = "0.10.2"
 toml = "0.5.8"
 toml_edit = "0.13.4"
