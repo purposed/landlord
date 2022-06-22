@@ -32,7 +32,7 @@ fn main() {
                 .arg(
                     Arg::with_name("verbose")
                         .long("verbose")
-                        .short("v")
+                        .short('v')
                         .help("Whether to use verbose output")
                         .required(false),
                 ),
@@ -57,7 +57,7 @@ fn main() {
                 .arg(
                     Arg::with_name("verbose")
                         .long("verbose")
-                        .short("v")
+                        .short('v')
                         .help("Whether to use verbose output")
                         .required(false),
                 )
@@ -80,7 +80,7 @@ fn main() {
                 )
                 .arg(
                     Arg::with_name("verbose")
-                        .short("v")
+                        .short('v')
                         .long("verbose")
                         .help("Whether to use verbose output")
                         .required(false),
